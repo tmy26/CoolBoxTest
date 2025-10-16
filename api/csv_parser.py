@@ -36,20 +36,20 @@ COMPANY_INFORMATION_DATA_MAPPING = {
 class ParseFile:
     """Custom class for handling the parsing of the .csv files.
 
-    This class includes methods for validating columns, reading the .csv file and creating records.
+        This class includes methods for validating columns, reading the .csv file and creating records.
 
-    Methods
-    -------
-    _check_columns(columns, mapping_to_use: dict) -> tuple[bool, list]
-        Method to verify the data integrity of the .csv file
+        Methods
+        _______
+        _check_columns(columns, mapping_to_use: dict) -> tuple[bool, list]
+            Method to verify the data integrity of the .csv file
 
-    read_csv_file_and_create_records(cls, file_path: str, mapping_to_use: dict) -> None
-        Method to parse the .csv file into pandas - dataframe, and create records.
+        read_csv_file_and_create_records(cls, file_path: str, mapping_to_use: dict) -> None
+            Method to parse the .csv file into pandas - dataframe, and create records.
     """
 
     @staticmethod
     def _check_columns(columns, mapping_to_use: dict) -> tuple[bool, list]:
-        """Method to verify the data integrity of the .csv file
+        """Method to verify the data integrity of the .csv file.
         :param columns: The read columns.
         :type columns: str.
         :param mapping_to_use: Tells the function which mapping to use.

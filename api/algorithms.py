@@ -1,5 +1,11 @@
-class Algorithms:
-    """A utility class providing custom algorithms such as Merge Sort.
+from .abstract_algo_base import Algorithms
+
+
+class CustomAlgorithms(Algorithms):
+    """The implementation of the abstract Algorithms base class.
+
+    This class provides custom sorting algorithms — currently Merge Sort and Quick Sort —
+    with safe handling for `None` values and support for ascending or descending order.
     
     Methods
     _______
@@ -27,8 +33,8 @@ class Algorithms:
             return data
 
         mid = len(data) // 2
-        left = Algorithms.merge_sort(data[:mid], key, reverse)
-        right = Algorithms.merge_sort(data[mid:], key, reverse)
+        left = CustomAlgorithms.merge_sort(data[:mid], key, reverse)
+        right = CustomAlgorithms.merge_sort(data[mid:], key, reverse)
 
         result, i, j = [], 0, 0
 
@@ -108,7 +114,7 @@ class Algorithms:
         right = [item for item in data if compare(item.get(key), pivot_value) > 0]
 
         return (
-            Algorithms.quick_sort(left, key, reverse)
+            CustomAlgorithms.quick_sort(left, key, reverse)
             + middle
-            + Algorithms.quick_sort(right, key, reverse)
+            + CustomAlgorithms.quick_sort(right, key, reverse)
         )

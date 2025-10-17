@@ -2,7 +2,7 @@ import re
 from django.http import HttpRequest
 from django.db import connection
 from django.core.cache import cache
-from .algorithms import Algorithms
+from .algorithms import CustomAlgorithms as Algorithms
 
 
 class ManualSQLQueryEngine:
@@ -49,14 +49,12 @@ class ManualSQLQueryEngine:
     @classmethod
     def _get_all_data(cls) -> list:
         """Fetches and caches the entire company dataset with joined details.
+        
         :return: A list of all company records (each as a dictionary).
         :rType: list of dicts.
         """
         data = cache.get(cls.CACHE_KEY)
         if data is not None:
-            # If a cache is avaibel return it
-            print('yaya abundaba you did hit the spot')
-            print('dasdasdasdasdas Test dasdasdasdasdasdad')
             return data
 
         sql = """
@@ -72,6 +70,7 @@ class ManualSQLQueryEngine:
         cache.set(cls.CACHE_KEY, data, cls.CACHE_TTL)
         return data
 
+    @staticmethod
     def _execute_sql(sql: str, params: list) -> list:
         """Executes raw SQL safely and returns query results.
         
@@ -99,14 +98,22 @@ class ManualSQLQueryEngine:
         """
         if not query_string:
             return []
+
         parts = re.split(cls.LOGIC_RE, query_string.strip())
         clauses = []
+
         for i in range(0, len(parts), 2):
-            filters = [{"field": f, "op": o, "val": v} for f, o, v in cls.QUERY_RE.findall(parts[i])]
+            raw_filters = cls.QUERY_RE.findall(parts[i])
+            filters = []
+            for field, op, val in raw_filters:
+                filters.append({"field": field, "op": op, "val": val})
+
             logic = parts[i + 1].upper() if i + 1 < len(parts) else None
             clauses.append({"filters": filters, "logic": logic})
+
         return clauses
 
+    @staticmethod
     def _match(record: dict, f: dict) -> bool:
         """Compares a single record field against a filter condition.
             Bassically said, this function checks whether a given record satisfies a single
@@ -119,7 +126,6 @@ class ManualSQLQueryEngine:
         :return: True if the record satisfies the condition else False.
         :rType: bool.
         """
-        
         field = f["field"]
         op = f["op"]
         val = f["val"]
@@ -137,23 +143,25 @@ class ManualSQLQueryEngine:
             val_lower = val
 
         # Operator logic
+        # Author note: this could be done using mapping and dicts, and a simple lambda function.
         try:
-            if op in (":", "="):
-                return str(rec_val_lower) == str(val_lower)
-            elif op == "~":
-                return str(val_lower) in str(rec_val_lower)
-            elif op == ">":
-                return float(rec_val) > float(val)
-            elif op == "<":
-                return float(rec_val) < float(val)
-            elif op == ">=":
-                return float(rec_val) >= float(val)
-            elif op == "<=":
-                return float(rec_val) <= float(val)
+            match op:
+                case ":" | "=":
+                    return str(rec_val_lower) == str(val_lower)
+                case "~":
+                    return str(val_lower) in str(rec_val_lower)
+                case ">":
+                    return float(rec_val) > float(val)
+                case "<":
+                    return float(rec_val) < float(val)
+                case ">=":
+                    return float(rec_val) >= float(val)
+                case "<=":
+                    return float(rec_val) <= float(val)
+                case _:
+                    return False
         except (ValueError, TypeError):
             return False
-        return False
-
 
     @classmethod
     def filter_data(cls, data: list, clauses: list) -> list:
@@ -171,11 +179,20 @@ class ManualSQLQueryEngine:
 
         result = data
         for clause in clauses:
-            subfiltered = [r for r in result if all(cls._match(r, f) for f in clause["filters"])]
-            if clause["logic"] == "OR":
-                result = list({id(r): r for r in (result + subfiltered)}.values())
+            filters = clause.get("filters", [])
+            logic = clause.get("logic")
+
+            subfiltered = []
+            for r in result:
+                if all(cls._match(r, f) for f in filters):
+                    subfiltered.append(r)
+
+            if logic == "OR":
+                combined = result + subfiltered
+                result = list({id(rec): rec for rec in combined}.values())
             else:
                 result = subfiltered
+
         return result
 
     @classmethod
@@ -197,7 +214,6 @@ class ManualSQLQueryEngine:
             "algorithm": "quicksort"
         }
         """
-
         # Get requerid data
         query_string = request.data.get("search input", "")
         sort_field = request.data.get("sort_by")
@@ -220,6 +236,3 @@ class ManualSQLQueryEngine:
                 filtered = Algorithms.quick_sort(filtered, sort_field, reverse)
 
         return filtered
-
-
-# TODO: write tests, fix docstrings and fill the READ.me document w explanations.

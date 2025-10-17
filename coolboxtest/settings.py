@@ -1,17 +1,18 @@
-from pathlib import Path
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 # Base dir
 BASE_DIR = Path(__file__).resolve().parent.parent
 COMPANY_INFORMATION_FILE_PATH = os.path.join(BASE_DIR, 'company data', 'company_data_.csv')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ayp=t^w$eqi-n7q+sq7*$rd7%mjc33@*c$%f0l8cqb-@l3b4g0'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",") if not DEBUG else ["localhost", "127.0.0.1"]
 
 # Application definition
 

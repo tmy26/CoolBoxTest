@@ -80,4 +80,6 @@ pytest -v
 The repo comes with preloaded database and with superuser :username: tmy26 and :password:0
 I had the idea the preload the database when the app starts, but this could easily become a bottleneck, so i decided to not do it.
 
+All docstrings are written in sphinx style - https://www.sphinx-doc.org/en/master/
+
 In the end of the day it was actually pretty fun experiance with a lot of new things learned. Pure pleasure.

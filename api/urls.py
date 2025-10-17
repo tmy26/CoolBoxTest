@@ -3,5 +3,5 @@ from api.views import SearchView
 
 
 urlpatterns = [
-    path('api/search', SearchView.as_view()),
+    path('api/companies', SearchView.as_view(), name='search_sort_filter'),
 ]

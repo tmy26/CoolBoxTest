@@ -1,0 +1,21 @@
+# Exclude virtual environment directories
+**/venv/
+#/env/
+
+# Exclude macOS specific file
+**/.DS_Store
+
+# Exclude Python cache directories
+**/__pycache__/
+
+# Exclude SQLite database files
+#**/*.sqlite3
+
+# Exclude .txt files
+usefull_commands.txt
+
+# Exclude logs directory and its content
+**/logs/
+
+# Exclude .env
+#.env
